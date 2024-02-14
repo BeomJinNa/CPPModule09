@@ -38,32 +38,32 @@ bool	BitcoinExchange::GetData(const std::string& fileName)
 
 void	BitcoinExchange::ParseLine(std::string& line)
 {
-		line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
+	line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
 
-		std::size_t			delimiter = line.find(',');
-		if (delimiter == std::string::npos || delimiter + 1 >= line.length())
-		{
-			return ;
-		}
+	std::size_t			delimiter = line.find(',');
+	if (delimiter == std::string::npos || delimiter + 1 >= line.length())
+	{
+		return ;
+	}
 
-		std::string date = line.substr(0, delimiter);
-		line = line.substr(delimiter + 1);
+	std::string date = line.substr(0, delimiter);
+	line = line.substr(delimiter + 1);
 
-		std::istringstream	iss(line);
+	std::istringstream	iss(line);
 
-		double	value;
-		iss >> value;
-		if (!iss)
-		{
-			return ;
-		}
+	double	value;
+	iss >> value;
+	if (!iss)
+	{
+		return ;
+	}
 
-		int key = GetKeyFromDate(date);
+	int key = GetKeyFromDate(date);
 
-		if (key >= 0)
-		{
-			mData[(key)] = value;
-		}
+	if (key >= 0)
+	{
+		mData[(key)] = value;
+	}
 }
 
 void	BitcoinExchange::Convert(const std::string& line) const
@@ -112,7 +112,7 @@ void	BitcoinExchange::Convert(const std::string& line) const
 
 	std::cout << std::fixed;
 	std::cout << date << " => " << iValue << " = "
-			  << std::setprecision(2) << value << std::endl;
+		<< std::setprecision(2) << value << std::endl;
 }
 
 namespace
@@ -141,12 +141,13 @@ namespace
 	bool IsValidDate(int year, int month, int day)
 	{
 		return (year >= 0
-				&& month >= 1
-				&& month <= 12
-				&& day >= 1
-				&& day <= GetDaysInMonth(year, month));
+			 && month >= 1
+			 && month <= 12
+			 && day >= 1
+			 && day <= GetDaysInMonth(year, month));
 	}
-int GetDaysInMonth(int year, int month)
+
+	int GetDaysInMonth(int year, int month)
 	{
 		static const int days[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 		if (month == 2 && IsLeapYear(year))

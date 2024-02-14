@@ -6,14 +6,14 @@ COMMONFLAGS	=
 CXXFLAGS	= $(COMMONFLAGS) -Wall -Wextra -Werror -std=c++98
 LDFLAGS		= $(COMMONFLAGS)
 
-NAME	= btc
+NAME	= RPN
 INCLUDE	=
 
 
 #sources=======================================================================
 
 SRCS	= main.cpp \
-		  BitcoinExchange.cpp
+		  RPN.cpp
 
 OBJS	= $(SRCS:.cpp=.o)
 
