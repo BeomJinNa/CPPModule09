@@ -39,7 +39,7 @@ namespace
 		{
 			std::istringstream	iss(argv[i + 1]);
 			iss >> input[i];
-			if (iss.fail())
+			if (iss.fail() || input[i] < 0)
 			{
 				std::cerr << "Error: invalid input" << std::endl;
 				exit(1);
@@ -89,7 +89,7 @@ namespace
 		std::cout << "Time to process a range of " << std::setw(DIGIT) << input.size()
 			<< " elements with std::vector : " << timeVector << " us" << std::endl;
 		std::cout << "Time to process a range of " << std::setw(DIGIT) << input.size()
-			<< " elements with std::list : " << timeList << " us" << std::endl;
+			<< " elements with std::list   : " << timeList << " us" << std::endl;
 #endif
 
 		return (std::make_pair(vector, list));
