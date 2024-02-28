@@ -1,28 +1,35 @@
 #include <iostream>
 #include <iomanip>
 #include <cassert>
+#include <utility>
 #include "PmergeMe.hpp"
 
 namespace
 {
+	//Vector
 	void				arrangeSubchain(const Vector& main, Vector& sub);
-	void				arrangeSubchain(const List& main, List& sub);
 	void				insertElements(Vector& main, const Vector& sub);
-	void				insertElements(List& main, const List& sub);
-	std::vector<int>	getSequenceListToInsert(std::size_t size);
 	void				insertBinarySearch(Vector& main, const Pair& element,
 										   std::size_t size);
+
+	//List
+	void				arrangeSubchain(const List& main, List& sub);
+	void				insertElements(List& main, const List& sub);
 	void				insertBinarySearch(List& main, const Pair& element,
 										   std::size_t size);
+
+	std::vector<int>	getSequenceListToInsert(std::size_t size);
+
 #ifdef LOG_ON
 	void				printMainSubSet(const Vector& main, const Vector& sub);
 #endif
 }
 
-PmergeMe::PmergeMe(void) {}
-PmergeMe::PmergeMe(const PmergeMe& source) { (void)source; }
-PmergeMe&	PmergeMe::operator=(const PmergeMe& source) { if (this != &source) {} return (*this); }
-PmergeMe::~PmergeMe(void) {}
+/*
+ * ============================================================================
+ * Vector
+ * ============================================================================
+ */
 
 void	PmergeMe::SortVector(Vector& vector)
 {
@@ -61,6 +68,98 @@ void	PmergeMe::SortVector(Vector& vector)
 	vector = mainChain;
 }
 
+Vector	PmergeMe::WrapVector(const std::vector<int>& vector)
+{
+	Vector	output(vector.size());
+
+	for (std::size_t i = 0; i < vector.size(); ++i)
+	{
+		output[i].first = vector[i];
+		output[i].second = i;
+	}
+
+	return (output);
+}
+
+void	PmergeMe::ReWriteIndex(Vector& vector)
+{
+	for (std::size_t i = 0; i < vector.size(); ++i)
+	{
+		vector[i].second = i;
+	}
+}
+
+std::vector<int>	PmergeMe::SaveIndex(const Vector& mainChain)
+{
+	std::vector<int>	output(mainChain.size());
+
+	for (std::size_t i = 0; i < mainChain.size(); ++i)
+	{
+		output[i] = mainChain[i].second;
+	}
+	return (output);
+}
+
+void	PmergeMe::LoadIndex(Vector& mainChain, const std::vector<int>& indexVector)
+{
+	assert(mainChain.size() == indexVector.size());
+	for (std::size_t i = 0; i < mainChain.size(); ++i)
+	{
+		mainChain[i].second = indexVector[mainChain[i].second];
+	}
+}
+
+void	PmergeMe::MakePair(Vector& vector)
+{
+	std::size_t	size = vector.size();
+	std::size_t	j = size / 2;
+	for (std::size_t i = 0; i < size / 2; ++i)
+	{
+		if (vector[i].first < vector[j].first)
+		{
+			Pair	temp = vector[i];
+			vector[i] = vector[j];
+			vector[j] = temp;
+		}
+		++j;
+	}
+}
+
+void	PmergeMe::PrintVector(const std::vector<int>& vector)
+{
+	if (vector.empty())
+	{
+		return ;
+	}
+
+	for (std::size_t i = 0; i < vector.size() - 1; ++i)
+	{
+		std::cout << std::setw(DIGIT) << vector[i] << " ";
+	}
+	std::cout << std::setw(DIGIT) << vector[vector.size() - 1];
+}
+
+void	PmergeMe::PrintVector(const Vector& vector)
+{
+	if (vector.empty())
+	{
+		return ;
+	}
+
+	for (std::size_t i = 0; i < vector.size() - 1; ++i)
+	{
+		std::cout << std::setw(DIGIT) << vector[i].first << " ";
+	}
+	std::cout << std::setw(DIGIT) << vector[vector.size() - 1].first;
+}
+
+
+/*
+ * ============================================================================
+ * List
+ * ============================================================================
+ */
+
 void	PmergeMe::SortList(List& list)
 {
 	if (list.size() < 2)
@@ -96,37 +195,16 @@ void	PmergeMe::SortList(List& list)
 	list = mainChain;
 }
 
-Vector	PmergeMe::WrapVector(const std::vector<int>& vector)
-{
-	Vector	output(vector.size());
-
-	for (std::size_t i = 0; i < vector.size(); ++i)
-	{
-		output[i].first = vector[i];
-		output[i].second = i;
-	}
-
-	return (output);
-}
-
 List	PmergeMe::MakeList(const std::vector<int>& vector)
 {
 	List	output;
 
 	for (std::size_t i = 0; i < vector.size(); ++i)
 	{
-		output.push_back(std::make_pair<int, int>(vector[i], i));
+		output.push_back(std::make_pair(vector[i], i));
 	}
 
 	return (output);
-}
-
-void	PmergeMe::ReWriteIndex(Vector& vector)
-{
-	for (std::size_t i = 0; i < vector.size(); ++i)
-	{
-		vector[i].second = i;
-	}
 }
 
 void	PmergeMe::ReWriteIndex(List& list)
@@ -136,17 +214,6 @@ void	PmergeMe::ReWriteIndex(List& list)
 	{
 		(*it).second = i++;
 	}
-}
-
-std::vector<int>	PmergeMe::SaveIndex(const Vector& mainChain)
-{
-	std::vector<int>	output(mainChain.size());
-
-	for (std::size_t i = 0; i < mainChain.size(); ++i)
-	{
-		output[i] = mainChain[i].second;
-	}
-	return (output);
 }
 
 std::vector<int>	PmergeMe::SaveIndex(const List& mainChain)
@@ -162,37 +229,12 @@ std::vector<int>	PmergeMe::SaveIndex(const List& mainChain)
 	return (output);
 }
 
-void	PmergeMe::LoadIndex(Vector& mainChain, const std::vector<int>& indexVector)
-{
-	assert(mainChain.size() == indexVector.size());
-	for (std::size_t i = 0; i < mainChain.size(); ++i)
-	{
-		mainChain[i].second = indexVector[mainChain[i].second];
-	}
-}
-
 void	PmergeMe::LoadIndex(List& mainChain, const std::vector<int>& indexVector)
 {
 	assert(mainChain.size() == indexVector.size());
 	for (List::iterator it = mainChain.begin(); it != mainChain.end(); ++it)
 	{
 		(*it).second = indexVector[(*it).second];
-	}
-}
-
-void	PmergeMe::MakePair(Vector& vector)
-{
-	std::size_t	size = vector.size();
-	std::size_t	j = size / 2;
-	for (std::size_t i = 0; i < size / 2; ++i)
-	{
-		if (vector[i].first < vector[j].first)
-		{
-			Pair	temp = vector[i];
-			vector[i] = vector[j];
-			vector[j] = temp;
-		}
-		++j;
 	}
 }
 
@@ -215,34 +257,6 @@ void	PmergeMe::MakePair(List& list)
 		++formerIt;
 		++latterIt;
 	}
-}
-
-void	PmergeMe::PrintVector(const std::vector<int>& vector)
-{
-	if (vector.empty())
-	{
-		return ;
-	}
-
-	for (std::size_t i = 0; i < vector.size() - 1; ++i)
-	{
-		std::cout << std::setw(DIGIT) << vector[i] << " ";
-	}
-	std::cout << std::setw(DIGIT) << vector[vector.size() - 1];
-}
-
-void	PmergeMe::PrintVector(const Vector& vector)
-{
-	if (vector.empty())
-	{
-		return ;
-	}
-
-	for (std::size_t i = 0; i < vector.size() - 1; ++i)
-	{
-		std::cout << std::setw(DIGIT) << vector[i].first << " ";
-	}
-	std::cout << std::setw(DIGIT) << vector[vector.size() - 1].first;
 }
 
 void	PmergeMe::PrintList(const List& list)
@@ -273,32 +287,6 @@ namespace
 		}
 	}
 
-	void	arrangeSubchain(const List& main, List& sub)
-	{
-		const List	temp(sub);
-		Pair		lastElem = std::make_pair<int, int>(0, -1);
-
-		if (main.size() < sub.size())
-		{
-			lastElem = sub.back();
-		}
-
-		sub.clear();
-
-		for (List::const_iterator it = main.begin(); it != main.end(); ++it)
-		{
-			List::const_iterator	subIt = temp.begin();
-
-			std::advance(subIt, (*it).second);
-			sub.push_back(*subIt);
-		}
-
-		if (lastElem.second != -1)
-		{
-			sub.push_back(lastElem);
-		}
-	}
-
 	void	insertElements(Vector& main, const Vector& sub)
 	{
 		const std::vector<int>	sequence = getSequenceListToInsert(sub.size());
@@ -316,42 +304,6 @@ namespace
 			PmergeMe::PrintVectorHighlight(main, sub[sequence[i]].first);
 #endif
 		}
-	}
-
-	void	insertElements(List& main, const List& sub)
-	{
-		const std::vector<int>	sequence = getSequenceListToInsert(sub.size());
-
-		for (std::size_t i = 0; i < sub.size(); ++i)
-		{
-			List::const_iterator	subIt = sub.begin();
-			std::advance(subIt, sequence[i]);
-			insertBinarySearch(main, *subIt, sequence[i] + i + 1);
-		}
-	}
-
-	std::vector<int>	getSequenceListToInsert(std::size_t size)
-	{
-		std::vector<int>	output(size);
-		std::size_t			pow = 2;
-		std::size_t			lastStart = 1;
-		std::size_t			index = 0;
-
-		for (std::size_t i = 0; i < size; ++i)
-		{
-			if (i + 1 > lastStart)
-			{
-				pow *= 2;
-				lastStart = pow - lastStart; // (index + 1) + lastStart = pow
-				index = lastStart - 1;
-				if (index >= size)
-				{
-					index = size - 1;
-				}
-			}
-			output[i] = index--;
-		}
-		return (output);
 	}
 
 	void	insertBinarySearch(Vector& main, const Pair& element, std::size_t size)
@@ -380,6 +332,44 @@ namespace
 		}
 
 		main.insert(main.begin() + mid, element);
+	}
+
+	void	arrangeSubchain(const List& main, List& sub)
+	{
+		const List	temp(sub);
+		Pair		lastElem = std::make_pair<int, int>(0, -1);
+
+		if (main.size() < sub.size())
+		{
+			lastElem = sub.back();
+		}
+
+		sub.clear();
+
+		for (List::const_iterator it = main.begin(); it != main.end(); ++it)
+		{
+			List::const_iterator	subIt = temp.begin();
+
+			std::advance(subIt, (*it).second);
+			sub.push_back(*subIt);
+		}
+
+		if (lastElem.second != -1)
+		{
+			sub.push_back(lastElem);
+		}
+	}
+
+	void	insertElements(List& main, const List& sub)
+	{
+		const std::vector<int>	sequence = getSequenceListToInsert(sub.size());
+
+		for (std::size_t i = 0; i < sub.size(); ++i)
+		{
+			List::const_iterator	subIt = sub.begin();
+			std::advance(subIt, sequence[i]);
+			insertBinarySearch(main, *subIt, sequence[i] + i + 1);
+		}
 	}
 
 	void	insertBinarySearch(List& main, const Pair& element, std::size_t size)
@@ -420,6 +410,30 @@ namespace
 		main.insert(itMid, element);
 	}
 
+	std::vector<int>	getSequenceListToInsert(std::size_t size)
+	{
+		std::vector<int>	output(size);
+		std::size_t			pow = 2;
+		std::size_t			lastStart = 1;
+		std::size_t			index = 0;
+
+		for (std::size_t i = 0; i < size; ++i)
+		{
+			if (i + 1 > lastStart)
+			{
+				pow *= 2;
+				lastStart = pow - lastStart; // (index + 1) + lastStart = pow
+				index = lastStart - 1;
+				if (index >= size)
+				{
+					index = size - 1;
+				}
+			}
+			output[i] = index--;
+		}
+		return (output);
+	}
+
 #ifdef LOG_ON
 	void	printMainSubSet(const Vector& main, const Vector& sub)
 	{
@@ -457,3 +471,8 @@ void	PmergeMe::PrintVectorHighlight(const Vector& vector, int filter)
 	std::cout << std::endl;
 }
 #endif
+
+PmergeMe::PmergeMe(void) {}
+PmergeMe::PmergeMe(const PmergeMe& source) { (void)source; }
+PmergeMe&	PmergeMe::operator=(const PmergeMe& source) { if (this != &source) {} return (*this); }
+PmergeMe::~PmergeMe(void) {}
