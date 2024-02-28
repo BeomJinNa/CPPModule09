@@ -333,15 +333,17 @@ namespace
 	std::vector<int>	getSequenceListToInsert(std::size_t size)
 	{
 		std::vector<int>	output(size);
-		std::size_t			pow = 1;
-		std::size_t			index;
+		std::size_t			pow = 2;
+		std::size_t			lastStart = 1;
+		std::size_t			index = 0;
 
 		for (std::size_t i = 0; i < size; ++i)
 		{
-			if (i + 1 >= pow)
+			if (i + 1 > lastStart)
 			{
 				pow *= 2;
-				index = pow - 2; // index + 1 = pow - 1
+				lastStart = pow - lastStart; // (index + 1) + lastStart = pow
+				index = lastStart - 1;
 				if (index >= size)
 				{
 					index = size - 1;
